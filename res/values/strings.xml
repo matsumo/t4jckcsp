@@ -2,8 +2,24 @@
 <resources>
 
     <string name="app_name">t4jckcs patcher</string>
-    <string name="app_desription">consumer key / consumer secret patcher for twitter4j used application</string>
-    
+    <string name="app_desription">consumer key / consumer secret patcher for twitter4j used applications</string>
+    <string name="applist_title">select target applications</string>
+
+    <string name="msg_saved">saved!</string>
+    <string name="msg_save">SAVE</string>
+    <string name="msg_ck_title">consumer key</string>
+    <string name="msg_ck_dialog_title">enter consumer key</string>
+    <string name="msg_cs_title">consumer secret</string>
+    <string name="msg_cs_dialog_title">enter consumer secret</string>
+    <string name="msg_target_apps">target applications</string>
+
+    <string name="donation_title">make a donation</string>
+    <string name="donation_summary">please support developer, if you like this app.</string>
+
+    <!-- test ck/cs use only oob -->
+    <string name="default_value_ck">yN3DUNVO0Me63IAQdhTfCA</string>
+    <string name="default_value_cs">c768oTKdzAjIYCmpSNIdZbGaG0t6rOhSFQP0S5uC79g</string>
+
 </resources>
 <!--
  ~ t4jckcs patcher Copyright (C) 2014 matsumo All rights reserved.

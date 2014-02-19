@@ -17,24 +17,29 @@ package com.matsumo.t4jckcsp;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
+import java.util.HashSet;
+
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 public class Patch implements IXposedHookZygoteInit, IXposedHookInitPackageResources, IXposedHookLoadPackage {
-	//TODO set package name for target applications
-	private static String[] TARGET_PKG = {"your.app.package.name1", "your.app.package.name2"/* ... */};
-	//TODO set consumer key
-	private static String REPLACE_CK = "YOUR CONSUMER KEY";
-	//TODO set consumer secret
-	private static String REPLACE_CS = "YOUR CONSUMER SECRET";
+	private static String[] targetPkg = {};
+	private static String replaceCK = null;
+	private static String replaceCS = null;
+	private static XSharedPreferences pref;
 
 	@Override
 	public void initZygote(StartupParam startupParam) {
+		pref = new XSharedPreferences(Patch.class.getPackage().getName());
+		replaceCK = pref.getString("defaultCK", null);
+		replaceCS = pref.getString("defaultCS", null);
+		targetPkg = pref.getStringSet("targetApps", new HashSet<String>()).toArray(new String[0]);
 	}
 
 	@Override
@@ -44,14 +49,14 @@ public class Patch implements IXposedHookZygoteInit, IXposedHookInitPackageResou
 	@Override
 	public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
 		boolean found = false;
-		for(int i=0; i<TARGET_PKG.length; i++){
-			if (lpparam.packageName.compareTo(TARGET_PKG[i]) == 0){
+		for(int i=0; i<targetPkg.length; i++){
+			if (lpparam.packageName.compareTo(targetPkg[i]) == 0){
 				found = true;
 				break;
 			}
 		}
-		if(found){
-			XposedBridge.log("!!found pkg="+lpparam.packageName);
+		if(found && replaceCK != null && replaceCS != null){
+//			XposedBridge.log("!!found pkg="+lpparam.packageName);
 			findAndHookMethod("twitter4j.conf.ConfigurationBase",
 				lpparam.classLoader,
 				"setOAuthConsumerKey",
@@ -60,8 +65,8 @@ public class Patch implements IXposedHookZygoteInit, IXposedHookInitPackageResou
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 					if(param.args[0] != null){
-						param.args[0] = REPLACE_CK;
-						XposedBridge.log("!!replace setOAuthConsumerKey");
+						param.args[0] = replaceCK;
+//						XposedBridge.log("!!replace setOAuthConsumerKey");
 					}
 				}
 			});
@@ -73,8 +78,8 @@ public class Patch implements IXposedHookZygoteInit, IXposedHookInitPackageResou
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 					if(param.args[0] != null){
-						param.args[0] = REPLACE_CS;
-						XposedBridge.log("!!replace setOAuthConsumerSecret");
+						param.args[0] = replaceCS;
+//						XposedBridge.log("!!replace setOAuthConsumerSecret");
 					}
 				}
 			});
@@ -87,9 +92,9 @@ public class Patch implements IXposedHookZygoteInit, IXposedHookInitPackageResou
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 					if(param.args[0] != null && param.args[1] != null){
-						param.args[0] = REPLACE_CK;
-						param.args[1] = REPLACE_CS;
-						XposedBridge.log("!!replace OAuthAuthorization");
+						param.args[0] = replaceCK;
+						param.args[1] = replaceCS;
+//						XposedBridge.log("!!replace OAuthAuthorization");
 					}
 				}
 			});
@@ -102,9 +107,9 @@ public class Patch implements IXposedHookZygoteInit, IXposedHookInitPackageResou
 				@Override
 				protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 					if(param.args[0] != null && param.args[1] != null){
-						param.args[0] = REPLACE_CK;
-						param.args[1] = REPLACE_CS;
-						XposedBridge.log("!!replace OAuth2Authorization");
+						param.args[0] = replaceCK;
+						param.args[1] = replaceCS;
+//						XposedBridge.log("!!replace OAuth2Authorization");
 					}
 				}
 			});
